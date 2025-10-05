@@ -1,0 +1,29 @@
+{
+  "slug": "PhasorBeatMaps",
+  "name": "Phasor Beat Maps",
+  "version": "2.0.0",
+  "license": "GPL-3.0-or-later",
+  "author": "HetrickCV",
+  "authorUrl": "https://github.com/mhetrick/phasorbeatgen",
+  "pluginUrl": "https://github.com/mhetrick/phasorbeatgen",
+  "manualUrl": "https://github.com/mhetrick/phasorbeatgen",
+  "sourceUrl": "https://github.com/mhetrick/phasorbeatgen",
+  "modules": [
+    {
+      "slug": "PhasorTopograph",
+      "name": "Phasor Topograph",
+      "description": "Topographic drum machine. This module is based on the original\nMutable Instruments (TM) Grids sequencer module. The Map and Density\ncontrols explore and control the denisty of many pre-baked drum patterns.",
+      "tags": [
+        "Sequencer"
+      ]
+    },
+    {
+      "slug": "Phasor uGraph",
+      "name": "Phasor uGraph",
+      "description": "Topographic drum machine. This module is based on the original\nMutable Instruments (TM) Grids sequencer module. The Map and Density\ncontrols explore and control the denisty of many pre-baked drum patterns.",
+      "tags": [
+        "Sequencer"
+      ]
+    }
+  ]
+}

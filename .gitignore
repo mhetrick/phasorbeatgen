@@ -1,3 +1,10 @@
+dist/
+build/
+.claude/
+CLAUDE.md
+
+.DS_Store
+
 # Prerequisites
 *.d
 

@@ -24,6 +24,7 @@
 #pragma once
 #include "../PhasorBeatMapPlugin.hpp"
 #include "../gui/ValleyComponents.hpp"
+#include "../gui/ValleyChoiceMenu.hpp"
 #include "../timers/Oneshot.hpp"
 #include "../DSP/Phasors/HCVPhasorAnalyzers.h"
 #include "PhasorBeatMapPatternGenerator.hpp"
@@ -102,7 +103,8 @@ struct PhasorBeatMap : Module {
        ORIGINAL,
        EUCLIDEAN
    };
-   SequencerMode sequencerMode = HENRI;
+   SequencerMode sequencerMode = ORIGINAL;
+   int sequencerModeChoice = 0;  // 0=Original, 1=Henri, 2=Euclidean (matching uGraph order)
    int inEuclideanMode = 0;
 
    enum TriggerOutputMode {
@@ -141,12 +143,11 @@ struct PhasorBeatMapWidget : ModuleWidget {
 
     SvgPanel* darkPanel;
     SvgPanel* lightPanel;
-    PlainText* tempoText;
     PlainText* mapXText;
     PlainText* mapYText;
     PlainText* chaosText;
     NVGcolor darkPanelTextColour = nvgRGB(0xFF, 0xFF, 0xFF);
     NVGcolor lightPanelTextColour = nvgRGB(0x00, 0x00, 0x00);
     NVGcolor panelTextColours[2] = {darkPanelTextColour, lightPanelTextColour};
-    bool isInExtClockMode = false;
+    ValleyChoiceMenu* seqModeChoice;
 };

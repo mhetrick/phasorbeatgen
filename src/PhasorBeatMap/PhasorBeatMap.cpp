@@ -46,6 +46,9 @@ PhasorBeatMap::PhasorBeatMap() {
         drumLED[i] = Oneshot(0.1, APP->engine->getSampleRate());
     }
     panelStyle = 0;
+
+    // Set default pattern mode to Original
+    patternGenerator.setPatternMode(PATTERN_ORIGINAL);
 }
 
 json_t* PhasorBeatMap::dataToJson() {
@@ -247,7 +250,62 @@ bool PhasorBeatMap::checkBarRegenerationNeeded() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////// Widget //////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// TODO: Redesign panel for phasor-based operation
+
+// Sequencer mode menu item
+struct SeqModeItem : MenuItem {
+    PhasorBeatMap* module;
+    int sequencerModeChoice;
+
+    void onAction(const event::Action& e) override {
+        module->sequencerModeChoice = sequencerModeChoice;
+
+        // Map choice index to SequencerMode enum
+        switch (sequencerModeChoice) {
+            case 0: // Original
+                module->sequencerMode = PhasorBeatMap::ORIGINAL;
+                module->patternGenerator.setPatternMode(PATTERN_ORIGINAL);
+                module->inEuclideanMode = 0;
+                break;
+            case 1: // Henri
+                module->sequencerMode = PhasorBeatMap::HENRI;
+                module->patternGenerator.setPatternMode(PATTERN_HENRI);
+                module->inEuclideanMode = 0;
+                break;
+            case 2: // Euclidean
+                module->sequencerMode = PhasorBeatMap::EUCLIDEAN;
+                module->patternGenerator.setPatternMode(PATTERN_EUCLIDEAN);
+                module->inEuclideanMode = 1;
+                break;
+        }
+        module->barCache.needsRegeneration = true;
+    }
+};
+
+// Sequencer mode choice menu
+struct SeqModeChoice : ValleyChoiceMenu {
+    PhasorBeatMap* module;
+    std::vector<std::string> seqModeLabels = {"Original", "Henri", "Euclid"};
+
+    void onAction(const event::Action& e) override {
+        if (!module) {
+            return;
+        }
+
+        ui::Menu* menu = createMenu();
+        for (int i = 0; i < static_cast<int>(seqModeLabels.size()); ++i) {
+            SeqModeItem* item = new SeqModeItem;
+            item->module = module;
+            item->sequencerModeChoice = i;
+            item->text = seqModeLabels[i];
+            item->rightText = CHECKMARK(item->sequencerModeChoice == module->sequencerModeChoice);
+            menu->addChild(item);
+        }
+    }
+
+    void step() override {
+        text = module ? seqModeLabels[module->sequencerModeChoice] : seqModeLabels[0];
+    }
+};
 
 PhasorBeatMapWidget::PhasorBeatMapWidget(PhasorBeatMap *module) {
     setModule(module);
@@ -296,6 +354,14 @@ PhasorBeatMapWidget::PhasorBeatMapWidget(PhasorBeatMap *module) {
 
     // Inputs
     addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 50.0), module, PhasorBeatMap::PHASOR_INPUT));
+
+    // Pattern mode dropdown below phasor input
+    SeqModeChoice* modeChoice = new SeqModeChoice;
+    modeChoice->module = module;
+    modeChoice->box.pos = Vec(50.0, 50.0);
+    modeChoice->box.size.x = 55.f;
+    addChild(modeChoice);
+
     addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 176.0), module, PhasorBeatMap::MAPX_CV));
     addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 236.0), module, PhasorBeatMap::MAPY_CV));
     addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 296.0), module, PhasorBeatMap::CHAOS_CV));
@@ -357,10 +423,6 @@ void PhasorBeatMapWidget::appendContextMenu(Menu* menu) {
 }
 
 void PhasorBeatMapWidget::step() {
-    PhasorBeatMap* module = dynamic_cast<PhasorBeatMap*>(this->module);
-    if (module) {
-        // Panel style switching could go here if needed
-    }
     ModuleWidget::step();
 }
 

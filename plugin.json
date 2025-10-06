@@ -17,15 +17,6 @@
         "Sequencer",
         "Drum sequencer"
       ]
-    },
-    {
-      "slug": "PhasoruGraph",
-      "name": "Phasor µGraph",
-      "description": "Compact phasor-driven topographic drum sequencer based on Mutable Instruments Grids. Uses phasor input for playback control.",
-      "tags": [
-        "Sequencer",
-        "Drum sequencer"
-      ]
     }
   ]
 }

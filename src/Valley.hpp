@@ -19,4 +19,3 @@ extern Plugin *pluginInstance;
 ////////////////////
 
 extern Model *modelTopograph;
-extern Model *modelUGraph;

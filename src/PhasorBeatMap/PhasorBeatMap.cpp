@@ -1,39 +1,39 @@
 //
-// Topograph.cpp
+// PhasorBeatMap.cpp
 // Author: Dale Johnson
 // Contact: valley.audio.soft@gmail.com
 // Date: 5/12/2017
 //
 
-#include "Topograph.hpp"
+#include "PhasorBeatMap.hpp"
 
-Topograph::Topograph() {
+PhasorBeatMap::PhasorBeatMap() {
 	config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
     // Parameters
-    configParam(Topograph::MAPX_PARAM, 0.0, 1.0, 0.0, "Pattern Map X");
-    configParam(Topograph::MAPY_PARAM, 0.0, 1.0, 0.0, "Pattern Map Y");
-    configParam(Topograph::CHAOS_PARAM, 0.0, 1.0, 0.0, "Pattern Chaos");
-    configParam(Topograph::BD_DENS_PARAM, 0.0, 1.0, 0.5, "Channel 1 Density");
-    configParam(Topograph::SN_DENS_PARAM, 0.0, 1.0, 0.5, "Channel 2 Density");
-    configParam(Topograph::HH_DENS_PARAM, 0.0, 1.0, 0.5, "Channel 3 Density");
+    configParam(PhasorBeatMap::MAPX_PARAM, 0.0, 1.0, 0.0, "Pattern Map X");
+    configParam(PhasorBeatMap::MAPY_PARAM, 0.0, 1.0, 0.0, "Pattern Map Y");
+    configParam(PhasorBeatMap::CHAOS_PARAM, 0.0, 1.0, 0.0, "Pattern Chaos");
+    configParam(PhasorBeatMap::BD_DENS_PARAM, 0.0, 1.0, 0.5, "Channel 1 Density");
+    configParam(PhasorBeatMap::SN_DENS_PARAM, 0.0, 1.0, 0.5, "Channel 2 Density");
+    configParam(PhasorBeatMap::HH_DENS_PARAM, 0.0, 1.0, 0.5, "Channel 3 Density");
 
     // Inputs
-    configInput(Topograph::PHASOR_INPUT, "Phasor");
-    configInput(Topograph::MAPX_CV, "Map X CV");
-    configInput(Topograph::MAPY_CV, "Map Y CV");
-    configInput(Topograph::CHAOS_CV, "Chaos CV");
-    configInput(Topograph::BD_FILL_CV, "Channel 1 Density CV");
-    configInput(Topograph::SN_FILL_CV, "Channel 2 Density CV");
-    configInput(Topograph::HH_FILL_CV, "Channel 3 Density CV");
+    configInput(PhasorBeatMap::PHASOR_INPUT, "Phasor");
+    configInput(PhasorBeatMap::MAPX_CV, "Map X CV");
+    configInput(PhasorBeatMap::MAPY_CV, "Map Y CV");
+    configInput(PhasorBeatMap::CHAOS_CV, "Chaos CV");
+    configInput(PhasorBeatMap::BD_FILL_CV, "Channel 1 Density CV");
+    configInput(PhasorBeatMap::SN_FILL_CV, "Channel 2 Density CV");
+    configInput(PhasorBeatMap::HH_FILL_CV, "Channel 3 Density CV");
 
     // Outputs
-    configOutput(Topograph::BD_OUTPUT, "Channel 1");
-    configOutput(Topograph::SN_OUTPUT, "Channel 2");
-    configOutput(Topograph::HH_OUTPUT, "Channel 3");
-    configOutput(Topograph::BD_ACC_OUTPUT, "Channel 1 Accent");
-    configOutput(Topograph::SN_ACC_OUTPUT, "Channel 2 Accent");
-    configOutput(Topograph::HH_ACC_OUTPUT, "Channel 3 Accent");
+    configOutput(PhasorBeatMap::BD_OUTPUT, "Channel 1");
+    configOutput(PhasorBeatMap::SN_OUTPUT, "Channel 2");
+    configOutput(PhasorBeatMap::HH_OUTPUT, "Channel 3");
+    configOutput(PhasorBeatMap::BD_ACC_OUTPUT, "Channel 1 Accent");
+    configOutput(PhasorBeatMap::SN_ACC_OUTPUT, "Channel 2 Accent");
+    configOutput(PhasorBeatMap::HH_ACC_OUTPUT, "Channel 3 Accent");
 
     // Initialize
     srand(time(NULL));
@@ -48,7 +48,7 @@ Topograph::Topograph() {
     panelStyle = 0;
 }
 
-json_t* Topograph::dataToJson() {
+json_t* PhasorBeatMap::dataToJson() {
     json_t *rootJ = json_object();
     json_object_set_new(rootJ, "sequencerMode", json_integer(sequencerMode));
     json_object_set_new(rootJ, "triggerOutputMode", json_integer(triggerOutputMode));
@@ -57,10 +57,10 @@ json_t* Topograph::dataToJson() {
     return rootJ;
 }
 
-void Topograph::dataFromJson(json_t* rootJ) {
+void PhasorBeatMap::dataFromJson(json_t* rootJ) {
     json_t *sequencerModeJ = json_object_get(rootJ, "sequencerMode");
     if (sequencerModeJ) {
-        sequencerMode = (Topograph::SequencerMode) json_integer_value(sequencerModeJ);
+        sequencerMode = (PhasorBeatMap::SequencerMode) json_integer_value(sequencerModeJ);
         inEuclideanMode = 0;
         switch (sequencerMode) {
             case HENRI:
@@ -79,12 +79,12 @@ void Topograph::dataFromJson(json_t* rootJ) {
 
     json_t* triggerOutputModeJ = json_object_get(rootJ, "triggerOutputMode");
 	if (triggerOutputModeJ) {
-		triggerOutputMode = (Topograph::TriggerOutputMode) json_integer_value(triggerOutputModeJ);
+		triggerOutputMode = (PhasorBeatMap::TriggerOutputMode) json_integer_value(triggerOutputModeJ);
 	}
 
     json_t* accOutputModeJ = json_object_get(rootJ, "accOutputMode");
 	if (accOutputModeJ) {
-		accOutputMode = (Topograph::AccOutputMode) json_integer_value(accOutputModeJ);
+		accOutputMode = (PhasorBeatMap::AccOutputMode) json_integer_value(accOutputModeJ);
         switch (accOutputMode) {
             case INDIVIDUAL_ACCENTS:
                 patternGenerator.setAccentAltMode(false);
@@ -101,7 +101,7 @@ void Topograph::dataFromJson(json_t* rootJ) {
     }
 }
 
-void Topograph::process(const ProcessArgs &args) {
+void PhasorBeatMap::process(const ProcessArgs &args) {
     // Read pattern parameters
     mapX = clamp(params[MAPX_PARAM].getValue() + inputs[MAPX_CV].getVoltage() / 10.f, 0.f, 1.f);
     mapY = clamp(params[MAPY_PARAM].getValue() + inputs[MAPY_CV].getVoltage() / 10.f, 0.f, 1.f);
@@ -157,7 +157,7 @@ void Topograph::process(const ProcessArgs &args) {
     updateUI();
 }
 
-void Topograph::updateUI() {
+void PhasorBeatMap::updateUI() {
     for(int i = 0; i < 3; ++i) {
         drumLED[i].process();
         lights[drumLEDIds[i]].value = drumLED[i].getState() ? 1.0f : 0.0f;
@@ -165,7 +165,7 @@ void Topograph::updateUI() {
 }
 
 // Trigger outputs for a specific step based on cached bar data
-void Topograph::triggerStepOutputs(int step) {
+void PhasorBeatMap::triggerStepOutputs(int step) {
     step = clamp(step, 0, 31);
     const BarCache::StepData& data = barCache.steps[step];
 
@@ -182,7 +182,7 @@ void Topograph::triggerStepOutputs(int step) {
     }
 }
 
-void Topograph::onSampleRateChange() {
+void PhasorBeatMap::onSampleRateChange() {
     for(int i = 0; i < 3; ++i) {
         drumLED[i].setSampleRate(APP->engine->getSampleRate());
     }
@@ -191,23 +191,23 @@ void Topograph::onSampleRateChange() {
     }
 }
 
-void Topograph::onReset(const ResetEvent& e) {
+void PhasorBeatMap::onReset(const ResetEvent& e) {
     Module::onReset(e);
     barCache.needsRegeneration = true;
 }
 
-void Topograph::onRandomize(const RandomizeEvent& e) {
-    params[Topograph::MAPX_PARAM].setValue(random::uniform());
-    params[Topograph::MAPY_PARAM].setValue(random::uniform());
-    params[Topograph::CHAOS_PARAM].setValue(random::uniform());
-    params[Topograph::BD_DENS_PARAM].setValue(random::uniform());
-    params[Topograph::SN_DENS_PARAM].setValue(random::uniform());
-    params[Topograph::HH_DENS_PARAM].setValue(random::uniform());
+void PhasorBeatMap::onRandomize(const RandomizeEvent& e) {
+    params[PhasorBeatMap::MAPX_PARAM].setValue(random::uniform());
+    params[PhasorBeatMap::MAPY_PARAM].setValue(random::uniform());
+    params[PhasorBeatMap::CHAOS_PARAM].setValue(random::uniform());
+    params[PhasorBeatMap::BD_DENS_PARAM].setValue(random::uniform());
+    params[PhasorBeatMap::SN_DENS_PARAM].setValue(random::uniform());
+    params[PhasorBeatMap::HH_DENS_PARAM].setValue(random::uniform());
     barCache.needsRegeneration = true;
 }
 
 // NEW: Check if bar needs regeneration based on parameter changes
-bool Topograph::checkBarRegenerationNeeded() {
+bool PhasorBeatMap::checkBarRegenerationNeeded() {
     // Get current parameter values (as uint8_t to match cache storage)
     uint8_t currentMapX = static_cast<uint8_t>(mapX * 255.0f);
     uint8_t currentMapY = static_cast<uint8_t>(mapY * 255.0f);
@@ -249,9 +249,9 @@ bool Topograph::checkBarRegenerationNeeded() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // TODO: Redesign panel for phasor-based operation
 
-TopographWidget::TopographWidget(Topograph *module) {
+PhasorBeatMapWidget::PhasorBeatMapWidget(PhasorBeatMap *module) {
     setModule(module);
-    setPanel(createPanel(asset::plugin(pluginInstance, "res/TopographPanel.svg")));
+    setPanel(createPanel(asset::plugin(pluginInstance, "res/PhasorBeatMapPanel.svg")));
 
     // Screws
     addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
@@ -287,38 +287,38 @@ TopographWidget::TopographWidget(Topograph *module) {
     addChild(chaosText);
 
     // Parameters (matching original panel layout)
-    addParam(createParam<Rogan1PSWhite>(Vec(49, 166.15), module, Topograph::MAPX_PARAM));
-    addParam(createParam<Rogan1PSWhite>(Vec(49, 226.15), module, Topograph::MAPY_PARAM));
-    addParam(createParam<Rogan1PSWhite>(Vec(49, 286.15), module, Topograph::CHAOS_PARAM));
-    addParam(createParam<Rogan1PSBrightRed>(Vec(121, 40.15), module, Topograph::BD_DENS_PARAM));
-    addParam(createParam<Rogan1PSOrange>(Vec(157, 103.15), module, Topograph::SN_DENS_PARAM));
-    addParam(createParam<Rogan1PSYellow>(Vec(193, 166.15), module, Topograph::HH_DENS_PARAM));
+    addParam(createParam<Rogan1PSWhite>(Vec(49, 166.15), module, PhasorBeatMap::MAPX_PARAM));
+    addParam(createParam<Rogan1PSWhite>(Vec(49, 226.15), module, PhasorBeatMap::MAPY_PARAM));
+    addParam(createParam<Rogan1PSWhite>(Vec(49, 286.15), module, PhasorBeatMap::CHAOS_PARAM));
+    addParam(createParam<Rogan1PSBrightRed>(Vec(121, 40.15), module, PhasorBeatMap::BD_DENS_PARAM));
+    addParam(createParam<Rogan1PSOrange>(Vec(157, 103.15), module, PhasorBeatMap::SN_DENS_PARAM));
+    addParam(createParam<Rogan1PSYellow>(Vec(193, 166.15), module, PhasorBeatMap::HH_DENS_PARAM));
 
     // Inputs
-    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 50.0), module, Topograph::PHASOR_INPUT));
-    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 176.0), module, Topograph::MAPX_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 236.0), module, Topograph::MAPY_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 296.0), module, Topograph::CHAOS_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(131.0, 236.0), module, Topograph::BD_FILL_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(167.0, 236.0), module, Topograph::SN_FILL_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(203.0, 236.0), module, Topograph::HH_FILL_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 50.0), module, PhasorBeatMap::PHASOR_INPUT));
+    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 176.0), module, PhasorBeatMap::MAPX_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 236.0), module, PhasorBeatMap::MAPY_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 296.0), module, PhasorBeatMap::CHAOS_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(131.0, 236.0), module, PhasorBeatMap::BD_FILL_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(167.0, 236.0), module, PhasorBeatMap::SN_FILL_CV));
+    addInput(createInput<PJ301MDarkSmall>(Vec(203.0, 236.0), module, PhasorBeatMap::HH_FILL_CV));
 
     // Outputs
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(131.0, 276.0), module, Topograph::BD_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(167.0, 276.0), module, Topograph::SN_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(203.0, 276.0), module, Topograph::HH_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(131.0, 311.0), module, Topograph::BD_ACC_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(167.0, 311.0), module, Topograph::SN_ACC_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(203.0, 311.0), module, Topograph::HH_ACC_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(131.0, 276.0), module, PhasorBeatMap::BD_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(167.0, 276.0), module, PhasorBeatMap::SN_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(203.0, 276.0), module, PhasorBeatMap::HH_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(131.0, 311.0), module, PhasorBeatMap::BD_ACC_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(167.0, 311.0), module, PhasorBeatMap::SN_ACC_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(203.0, 311.0), module, PhasorBeatMap::HH_ACC_OUTPUT));
 
     // Lights
-    addChild(createLight<SmallLight<RedLight>>(Vec(138.6, 218), module, Topograph::BD_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(174.6, 218), module, Topograph::SN_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(210.6, 218), module, Topograph::HH_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(138.6, 218), module, PhasorBeatMap::BD_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(174.6, 218), module, PhasorBeatMap::SN_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(210.6, 218), module, PhasorBeatMap::HH_LIGHT));
 }
 
-void TopographWidget::appendContextMenu(Menu* menu) {
-    Topograph* module = dynamic_cast<Topograph*>(this->module);
+void PhasorBeatMapWidget::appendContextMenu(Menu* menu) {
+    PhasorBeatMap* module = dynamic_cast<PhasorBeatMap*>(this->module);
     if (!module) return;
     
     menu->addChild(new MenuSeparator);
@@ -327,7 +327,7 @@ void TopographWidget::appendContextMenu(Menu* menu) {
     menu->addChild(createIndexSubmenuItem("Sequencer Mode", {"Henri", "Original", "Euclidean"},
         [=]() { return module->sequencerMode; },
         [=](int mode) { 
-            module->sequencerMode = (Topograph::SequencerMode)mode;
+            module->sequencerMode = (PhasorBeatMap::SequencerMode)mode;
             module->patternGenerator.setPatternMode((PatternGeneratorMode)mode);
             module->barCache.needsRegeneration = true;
         }
@@ -336,14 +336,14 @@ void TopographWidget::appendContextMenu(Menu* menu) {
     // Trigger output mode
     menu->addChild(createIndexSubmenuItem("Trigger Mode", {"Pulse", "Gate"},
         [=]() { return module->triggerOutputMode; },
-        [=](int mode) { module->triggerOutputMode = (Topograph::TriggerOutputMode)mode; }
+        [=](int mode) { module->triggerOutputMode = (PhasorBeatMap::TriggerOutputMode)mode; }
     ));
     
     // Accent output mode
     menu->addChild(createIndexSubmenuItem("Accent Mode", {"Individual", "Clock+Reset"},
         [=]() { return module->accOutputMode; },
         [=](int mode) { 
-            module->accOutputMode = (Topograph::AccOutputMode)mode;
+            module->accOutputMode = (PhasorBeatMap::AccOutputMode)mode;
             module->patternGenerator.setAccentAltMode(mode == 1);
             module->barCache.needsRegeneration = true;
         }
@@ -356,12 +356,12 @@ void TopographWidget::appendContextMenu(Menu* menu) {
     ));
 }
 
-void TopographWidget::step() {
-    Topograph* module = dynamic_cast<Topograph*>(this->module);
+void PhasorBeatMapWidget::step() {
+    PhasorBeatMap* module = dynamic_cast<PhasorBeatMap*>(this->module);
     if (module) {
         // Panel style switching could go here if needed
     }
     ModuleWidget::step();
 }
 
-Model *modelTopograph = createModel<Topograph, TopographWidget>("PhasorTopograph");
+Model *modelPhasorBeatMap = createModel<PhasorBeatMap, PhasorBeatMapWidget>("PhasorBeatMap");

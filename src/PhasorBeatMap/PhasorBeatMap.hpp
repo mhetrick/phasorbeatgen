@@ -1,10 +1,11 @@
 //
-// Topograph.cpp
-// Author: Dale Johnson
+// PhasorBeatMap.hpp
+// Author: Dale Johnson (original Topograph)
+// Modified by: HetrickCV (phasor-based version)
 // Contact: valley.audio.soft@gmail.com
 // Date: 5/12/2017
 //
-// Topograph, a port of "Mutable Instruments Grids" for VCV Rack
+// Phasor Beat Map, a phasor-driven port of "Mutable Instruments Grids" for VCV Rack
 // Original author: Emilie Gillet (emilie.o.gillet@gmail.com)
 // https://github.com/pichenettes/eurorack/tree/master/grids
 // Copyright 2012 Emilie Gillet.
@@ -21,15 +22,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
-#include "../Valley.hpp"
+#include "../PhasorBeatMapPlugin.hpp"
 #include "../gui/ValleyComponents.hpp"
 #include "../timers/Oneshot.hpp"
 #include "../DSP/Phasors/HCVPhasorAnalyzers.h"
-#include "TopographPatternGenerator.hpp"
+#include "PhasorBeatMapPatternGenerator.hpp"
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
 
-struct Topograph : Module {
+struct PhasorBeatMap : Module {
    enum ParamIds {
        MAPX_PARAM,
        MAPY_PARAM,
@@ -119,7 +120,7 @@ struct Topograph : Module {
    int panelStyle;
    int textVisible = 1;
 
-   Topograph();
+   PhasorBeatMap();
    json_t* dataToJson() override;
    void dataFromJson(json_t *rootJ) override;
    void process(const ProcessArgs &args) override;
@@ -133,8 +134,8 @@ struct Topograph : Module {
    void triggerStepOutputs(int step);
 };
 
-struct TopographWidget : ModuleWidget {
-    TopographWidget(Topograph *topograph);
+struct PhasorBeatMapWidget : ModuleWidget {
+    PhasorBeatMapWidget(PhasorBeatMap *module);
     void appendContextMenu(Menu* menu) override;
     void step() override;
 

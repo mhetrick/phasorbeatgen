@@ -1,5 +1,5 @@
 //
-// Topograph
+// PhasorBeatMap
 // A port of "Mutable Instruments Grids" for VCV Rack
 // Author: Dale Johnson (valley.audio.soft@gmail.com)
 // Date: 4/12/2017
@@ -20,7 +20,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "TopographPatternGenerator.hpp"
+#include "PhasorBeatMapPatternGenerator.hpp"
 
 uint8_t U8U8MulShift8(uint8_t a, uint8_t b) {
     return (a * b) >> 8;

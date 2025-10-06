@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Valley.hpp"
+#include "../PhasorBeatMapPlugin.hpp"
 
 struct ValleyChoiceMenu : widget::OpaqueWidget {
     std::string text;

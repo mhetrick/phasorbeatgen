@@ -7,7 +7,7 @@
 #ifndef DSJ_VALLEY_WIDGETS_HPP
 #define DSJ_VALLEY_WIDGETS_HPP
 
-#include "../Valley.hpp"
+#include "../PhasorBeatMapPlugin.hpp"
 #include <functional>
 #include <settings.hpp>
 

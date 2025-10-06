@@ -1,5 +1,5 @@
 //
-// Topograph
+// PhasorBeatMap
 // A port of "Mutable Instruments Grids" for VCV Rack
 // Author: Dale Johnson (valley.audio.soft@gmail.com)
 // Date: 4/12/2017
@@ -29,12 +29,12 @@
 // EUCLIDEAN    FALSE          RND   CLK  RST3  RST2  RST1  EUC3  EUC2  EUC1
 // EUCLIDEAN    TRUE           RND   CLK   CLK  STEP   RST  EUC3  EUC2  EUC1
 
-#ifndef TopographPatternGenerator_hpp
-#define TopographPatternGenerator_hpp
+#ifndef PhasorBeatMapPatternGenerator_hpp
+#define PhasorBeatMapPatternGenerator_hpp
 
 #include <cstdlib>
 #include <cmath>
-#include "TopographResources.hpp"
+#include "PhasorBeatMapResources.hpp"
 
 const uint8_t kNumParts = 3;
 const uint8_t kPulsesPerStep = 3;  // 24 ppqn ; 8 steps per quarter note.
@@ -183,4 +183,4 @@ private:
     void evaluateStepEuclidean(uint8_t step, uint8_t euclideanStep[kNumParts], uint8_t* outTriggers, uint8_t* outResets);
 };
 
-#endif /* TopographPatternGenerator_hpp */
+#endif /* PhasorBeatMapPatternGenerator_hpp */

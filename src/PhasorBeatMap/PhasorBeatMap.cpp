@@ -55,7 +55,6 @@ json_t* PhasorBeatMap::dataToJson() {
     json_t *rootJ = json_object();
     json_object_set_new(rootJ, "sequencerMode", json_integer(sequencerMode));
     json_object_set_new(rootJ, "triggerOutputMode", json_integer(triggerOutputMode));
-    json_object_set_new(rootJ, "accOutputMode", json_integer(accOutputMode));
     json_object_set_new(rootJ, "panelStyle", json_integer(panelStyle));
     return rootJ;
 }
@@ -83,19 +82,6 @@ void PhasorBeatMap::dataFromJson(json_t* rootJ) {
     json_t* triggerOutputModeJ = json_object_get(rootJ, "triggerOutputMode");
 	if (triggerOutputModeJ) {
 		triggerOutputMode = (PhasorBeatMap::TriggerOutputMode) json_integer_value(triggerOutputModeJ);
-	}
-
-    json_t* accOutputModeJ = json_object_get(rootJ, "accOutputMode");
-	if (accOutputModeJ) {
-		accOutputMode = (PhasorBeatMap::AccOutputMode) json_integer_value(accOutputModeJ);
-        switch (accOutputMode) {
-            case INDIVIDUAL_ACCENTS:
-                patternGenerator.setAccentAltMode(false);
-                break;
-            case ACC_CLK_RST:
-                patternGenerator.setAccentAltMode(true);
-        }
-        barCache.needsRegeneration = true;
 	}
 
     json_t* panelStyleJ = json_object_get(rootJ, "panelStyle");
@@ -150,10 +136,27 @@ void PhasorBeatMap::process(const ProcessArgs &args) {
         lastStep = currentStep;
     }
 
-    // Update trigger outputs
-    for (int i = 0; i < 6; ++i) {
-        drumTriggers[i].process();
-        outputs[outIDs[i]].setVoltage(drumTriggers[i].getState() ? 10.0f : 0.0f);
+    // Update trigger/gate outputs
+    if (triggerOutputMode == GATE) {
+        // Gate mode: output high for first 50% of step if trigger is active
+        int currentStep = stepDetector.getCurrentStep();
+        float fractionalStep = stepDetector.getFractionalStep();
+        const BarCache::StepData& data = barCache.steps[currentStep];
+
+        for (int i = 0; i < 3; ++i) {
+            bool gateHigh = data.trigger[i] && (fractionalStep < 0.5f);
+            outputs[outIDs[i]].setVoltage(gateHigh ? 10.0f : 0.0f);
+
+            // Accent outputs
+            bool accentGateHigh = data.trigger[i] && data.accent[i] && (fractionalStep < 0.5f);
+            outputs[outIDs[i + 3]].setVoltage(accentGateHigh ? 10.0f : 0.0f);
+        }
+    } else {
+        // Pulse mode: use trigger generators
+        for (int i = 0; i < 6; ++i) {
+            drumTriggers[i].process();
+            outputs[outIDs[i]].setVoltage(drumTriggers[i].getState() ? 10.0f : 0.0f);
+        }
     }
 
     // Update UI
@@ -227,8 +230,7 @@ bool PhasorBeatMap::checkBarRegenerationNeeded() {
         currentBDDensity != barCache.lastDensity[0] ||
         currentSNDensity != barCache.lastDensity[1] ||
         currentHHDensity != barCache.lastDensity[2] ||
-        sequencerMode != static_cast<int>(barCache.lastPatternMode) ||
-        (accOutputMode == ACC_CLK_RST) != barCache.lastAccAlt
+        sequencerMode != static_cast<int>(barCache.lastPatternMode)
     );
 
     // For Euclidean mode, also check euclidean lengths
@@ -386,39 +388,13 @@ PhasorBeatMapWidget::PhasorBeatMapWidget(PhasorBeatMap *module) {
 void PhasorBeatMapWidget::appendContextMenu(Menu* menu) {
     PhasorBeatMap* module = dynamic_cast<PhasorBeatMap*>(this->module);
     if (!module) return;
-    
+
     menu->addChild(new MenuSeparator);
-    
-    // Sequencer mode
-    menu->addChild(createIndexSubmenuItem("Sequencer Mode", {"Henri", "Original", "Euclidean"},
-        [=]() { return module->sequencerMode; },
-        [=](int mode) { 
-            module->sequencerMode = (PhasorBeatMap::SequencerMode)mode;
-            module->patternGenerator.setPatternMode((PatternGeneratorMode)mode);
-            module->barCache.needsRegeneration = true;
-        }
-    ));
-    
+
     // Trigger output mode
     menu->addChild(createIndexSubmenuItem("Trigger Mode", {"Pulse", "Gate"},
         [=]() { return module->triggerOutputMode; },
         [=](int mode) { module->triggerOutputMode = (PhasorBeatMap::TriggerOutputMode)mode; }
-    ));
-    
-    // Accent output mode
-    menu->addChild(createIndexSubmenuItem("Accent Mode", {"Individual", "Clock+Reset"},
-        [=]() { return module->accOutputMode; },
-        [=](int mode) { 
-            module->accOutputMode = (PhasorBeatMap::AccOutputMode)mode;
-            module->patternGenerator.setAccentAltMode(mode == 1);
-            module->barCache.needsRegeneration = true;
-        }
-    ));
-    
-    // Panel style
-    menu->addChild(createIndexSubmenuItem("Panel", {"Dark", "Light"},
-        [=]() { return module->panelStyle; },
-        [=](int style) { module->panelStyle = style; }
     ));
 }
 

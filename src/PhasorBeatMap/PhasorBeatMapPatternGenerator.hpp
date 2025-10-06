@@ -98,7 +98,6 @@ struct BarCache {
     uint8_t lastRandomness;
     PatternGeneratorMode lastPatternMode;
     uint8_t lastEuclideanLength[kNumParts];
-    bool lastAccAlt;
 
     BarCache() {
         needsRegeneration = true;
@@ -106,7 +105,6 @@ struct BarCache {
         lastMapY = 0;
         lastRandomness = 0;
         lastPatternMode = PATTERN_HENRI;
-        lastAccAlt = false;
         for (int i = 0; i < kNumParts; ++i) {
             lastDensity[i] = 0;
             lastEuclideanLength[i] = 255;

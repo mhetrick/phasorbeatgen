@@ -113,12 +113,6 @@ struct PhasorBeatMap : Module {
    };
    TriggerOutputMode triggerOutputMode = PULSE;
 
-   enum AccOutputMode {
-       INDIVIDUAL_ACCENTS,
-       ACC_CLK_RST
-   };
-   AccOutputMode accOutputMode = INDIVIDUAL_ACCENTS;
-
    int panelStyle;
    int textVisible = 1;
 

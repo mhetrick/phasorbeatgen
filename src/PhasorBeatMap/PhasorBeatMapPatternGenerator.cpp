@@ -339,7 +339,6 @@ void PatternGenerator::generateBar(BarCache& cache) {
     cache.lastMapY = _settings.y;
     cache.lastRandomness = _settings.randomness;
     cache.lastPatternMode = _settings.patternMode;
-    cache.lastAccAlt = _settings.accAlt;
     for (uint8_t i = 0; i < kNumParts; ++i) {
         cache.lastDensity[i] = _settings.density[i];
         cache.lastEuclideanLength[i] = _settings.euclidean_length[i];

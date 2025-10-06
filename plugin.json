@@ -1,6 +1,6 @@
 {
-  "slug": "PhasorBeatMaps",
-  "name": "Phasor Beat Maps",
+  "slug": "PhasorBeatMap",
+  "name": "Phasor Beat Map",
   "version": "2.0.0",
   "license": "GPL-3.0-or-later",
   "author": "HetrickCV",
@@ -10,8 +10,8 @@
   "sourceUrl": "https://github.com/mhetrick/phasorbeatgen",
   "modules": [
     {
-      "slug": "PhasorTopograph",
-      "name": "Phasor Topograph",
+      "slug": "PhasorBeatMap",
+      "name": "Phasor Beat Map",
       "description": "Phasor-driven topographic drum sequencer based on Mutable Instruments Grids. Uses phasor input (0-10V) for playback, enabling reverse, scrub, and non-linear pattern navigation.",
       "tags": [
         "Sequencer",

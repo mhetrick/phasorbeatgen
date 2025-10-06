@@ -121,7 +121,7 @@ void Topograph::process(const ProcessArgs &args) {
     patternGenerator.setEuclideanLength(1, mapY);
     patternGenerator.setEuclideanLength(2, chaos);
 
-    // Check if bar needs regeneration
+    // Check if bar needs regeneration due to parameter changes
     if (checkBarRegenerationNeeded()) {
         patternGenerator.generateBar(barCache);
     }
@@ -129,6 +129,13 @@ void Topograph::process(const ProcessArgs &args) {
     // Process phasor input
     float phasor = inputs[PHASOR_INPUT].getVoltage() / 10.0f;  // Normalize to 0-1
     phasor = clamp(phasor, 0.f, 1.f);
+
+    // Detect phasor resets and regenerate bar if chaos is active
+    if (resetDetector.detectProportionalReset(phasor)) {
+        if (chaos > 0.0f && !freezeActive) {
+            patternGenerator.generateBar(barCache);
+        }
+    }
 
     // Feed to step detector
     stepDetector(phasor);

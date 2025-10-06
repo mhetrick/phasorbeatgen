@@ -75,7 +75,9 @@ struct Topograph : Module {
 
    // Phasor processing
    HCVPhasorStepDetector stepDetector;
+   HCVPhasorResetDetector resetDetector;
    int lastStep = -1;
+   bool freezeActive = false;  // For future freeze input
 
    // Pattern parameters
    float mapX = 0.0;

@@ -304,17 +304,17 @@ TopographWidget::TopographWidget(Topograph *module) {
     addInput(createInput<PJ301MDarkSmall>(Vec(203.0, 236.0), module, Topograph::HH_FILL_CV));
 
     // Outputs
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(131.0, 296.0), module, Topograph::BD_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(167.0, 296.0), module, Topograph::SN_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(203.0, 296.0), module, Topograph::HH_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(131.0, 331.0), module, Topograph::BD_ACC_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(167.0, 331.0), module, Topograph::SN_ACC_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(203.0, 331.0), module, Topograph::HH_ACC_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(131.0, 276.0), module, Topograph::BD_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(167.0, 276.0), module, Topograph::SN_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(203.0, 276.0), module, Topograph::HH_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(131.0, 311.0), module, Topograph::BD_ACC_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(167.0, 311.0), module, Topograph::SN_ACC_OUTPUT));
+    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(203.0, 311.0), module, Topograph::HH_ACC_OUTPUT));
 
     // Lights
-    addChild(createLight<MediumLight<RedLight>>(Vec(151.5, 314.5), module, Topograph::BD_LIGHT));
-    addChild(createLight<MediumLight<RedLight>>(Vec(187.5, 314.5), module, Topograph::SN_LIGHT));
-    addChild(createLight<MediumLight<RedLight>>(Vec(223.5, 314.5), module, Topograph::HH_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(138.6, 218), module, Topograph::BD_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(174.6, 218), module, Topograph::SN_LIGHT));
+    addChild(createLight<SmallLight<RedLight>>(Vec(210.6, 218), module, Topograph::HH_LIGHT));
 }
 
 void TopographWidget::appendContextMenu(Menu* menu) {

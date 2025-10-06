@@ -12,17 +12,19 @@
     {
       "slug": "PhasorTopograph",
       "name": "Phasor Topograph",
-      "description": "Topographic drum machine. This module is based on the original\nMutable Instruments (TM) Grids sequencer module. The Map and Density\ncontrols explore and control the denisty of many pre-baked drum patterns.",
+      "description": "Phasor-driven topographic drum sequencer based on Mutable Instruments Grids. Uses phasor input (0-10V) for playback, enabling reverse, scrub, and non-linear pattern navigation.",
       "tags": [
-        "Sequencer"
+        "Sequencer",
+        "Drum sequencer"
       ]
     },
     {
-      "slug": "Phasor uGraph",
-      "name": "Phasor uGraph",
-      "description": "Topographic drum machine. This module is based on the original\nMutable Instruments (TM) Grids sequencer module. The Map and Density\ncontrols explore and control the denisty of many pre-baked drum patterns.",
+      "slug": "PhasoruGraph",
+      "name": "Phasor µGraph",
+      "description": "Compact phasor-driven topographic drum sequencer based on Mutable Instruments Grids. Uses phasor input for playback control.",
       "tags": [
-        "Sequencer"
+        "Sequencer",
+        "Drum sequencer"
       ]
     }
   ]

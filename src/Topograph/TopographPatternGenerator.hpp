@@ -72,6 +72,48 @@ enum ClockResolution {
 
 const uint8_t ticks_granularity[] = { 6, 3, 1 };
 
+// Bar cache for phasor-based playback
+struct BarCache {
+    struct StepData {
+        bool trigger[kNumParts];      // BD, SD, HH trigger states
+        bool accent[kNumParts];       // Accent flags for each channel
+        uint8_t level[kNumParts];     // Original probability level (0-255) for debugging/visualization
+
+        StepData() {
+            for (int i = 0; i < kNumParts; ++i) {
+                trigger[i] = false;
+                accent[i] = false;
+                level[i] = 0;
+            }
+        }
+    };
+
+    StepData steps[kStepsPerPattern];
+
+    // Metadata for regeneration detection
+    bool needsRegeneration;
+    uint8_t lastMapX;
+    uint8_t lastMapY;
+    uint8_t lastDensity[kNumParts];
+    uint8_t lastRandomness;
+    PatternGeneratorMode lastPatternMode;
+    uint8_t lastEuclideanLength[kNumParts];
+    bool lastAccAlt;
+
+    BarCache() {
+        needsRegeneration = true;
+        lastMapX = 0;
+        lastMapY = 0;
+        lastRandomness = 0;
+        lastPatternMode = PATTERN_HENRI;
+        lastAccAlt = false;
+        for (int i = 0; i < kNumParts; ++i) {
+            lastDensity[i] = 0;
+            lastEuclideanLength[i] = 255;
+        }
+    }
+};
+
 struct PatternGeneratorOptions {
     PatternGeneratorOptions() {
         x = 0;
@@ -117,6 +159,9 @@ public:
     uint8_t getBeat() const;
     uint8_t getEuclideanLength(uint8_t channel);
 
+    // NEW: Bar generation for phasor-based playback
+    void generateBar(BarCache& cache);
+
 private:
     PatternGeneratorOptions _settings;
     uint8_t _pulse;
@@ -132,6 +177,10 @@ private:
     void evaluate();
     void evaluateEuclidean();
     void evaluateDrums();
+
+    // NEW: Step-by-step evaluation for bar generation
+    void evaluateStepDrums(uint8_t step, uint8_t* outTriggers, uint8_t* outAccents, uint8_t* outLevels, const uint8_t* perturbation);
+    void evaluateStepEuclidean(uint8_t step, uint8_t euclideanStep[kNumParts], uint8_t* outTriggers, uint8_t* outResets);
 };
 
 #endif /* TopographPatternGenerator_hpp */

@@ -8,6 +8,7 @@ endif
 
 # This turns asserts off for make (plugin), not for test or perf
 FLAGS += $(ASSERTOFF)
+FLAGS += -I Gamma
 
 # FLAGS will be passed to both the C and C++ compiler
 CFLAGS += -O3 -std=c99 -Isrc
@@ -19,6 +20,9 @@ LDFLAGS +=
 
 # Add .cpp and .c files to the build
 SOURCES = $(wildcard src/*.cpp src/*.c src/*/*.cpp src/*/*.c src/*/*/*.cpp src/*/*/*/c)
+SOURCES += Gamma/src/arr.cpp
+SOURCES += Gamma/src/Domain.cpp
+SOURCES += Gamma/src/scl.cpp
 
 # Must include the VCV plugin Makefile framework
 RACK_DIR ?= ../..

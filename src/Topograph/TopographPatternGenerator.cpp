@@ -261,5 +261,159 @@ void PatternGenerator::evaluateDrums() {
     else {
         _state |= _accentBits << 3;
     }
-
 }
+
+// NEW: Generate entire bar for phasor-based playback
+void PatternGenerator::generateBar(BarCache& cache) {
+    if (_settings.patternMode == PATTERN_EUCLIDEAN) {
+        // Euclidean mode: generate all 32 steps
+        uint8_t euclideanStepLocal[kNumParts] = {0, 0, 0};
+
+        for (uint8_t step = 0; step < kStepsPerPattern; ++step) {
+            // Euclidean only evaluates on even steps (sixteenth notes)
+            if (!(step & 1)) {
+                uint8_t triggers = 0;
+                uint8_t resets = 0;
+                evaluateStepEuclidean(step, euclideanStepLocal, &triggers, &resets);
+
+                // Store trigger data
+                for (uint8_t i = 0; i < kNumParts; ++i) {
+                    cache.steps[step].trigger[i] = (triggers & (1 << i)) != 0;
+                    cache.steps[step].level[i] = cache.steps[step].trigger[i] ? 255 : 0;
+                }
+
+                // Store reset bits as accents in euclidean mode
+                if (_settings.accAlt) {
+                    // In alt mode, use common/reset bits
+                    cache.steps[step].accent[0] = (resets != 0);  // Common bit
+                    cache.steps[step].accent[1] = (resets == 0x07);  // Reset bit
+                    cache.steps[step].accent[2] = false;
+                } else {
+                    // Individual reset bits
+                    for (uint8_t i = 0; i < kNumParts; ++i) {
+                        cache.steps[step].accent[i] = (resets & (1 << i)) != 0;
+                    }
+                }
+
+                // Increment euclidean steps for next iteration
+                for (uint8_t i = 0; i < kNumParts; ++i) {
+                    ++euclideanStepLocal[i];
+                }
+            } else {
+                // Odd steps: no triggers in Euclidean mode
+                for (uint8_t i = 0; i < kNumParts; ++i) {
+                    cache.steps[step].trigger[i] = false;
+                    cache.steps[step].accent[i] = false;
+                    cache.steps[step].level[i] = 0;
+                }
+            }
+        }
+    } else {
+        // Drum mode: generate perturbation for the entire bar
+        uint8_t barPerturbation[kNumParts];
+        for (uint8_t i = 0; i < kNumParts; ++i) {
+            uint8_t randomNum = (uint8_t)rand() % 256;
+            uint8_t randomness = _settings.swing ? 0 : _settings.randomness >> 2;
+            barPerturbation[i] = U8U8MulShift8(randomNum, randomness);
+        }
+
+        // Generate all 32 steps with the same perturbation
+        for (uint8_t step = 0; step < kStepsPerPattern; ++step) {
+            uint8_t triggers = 0;
+            uint8_t accents = 0;
+            uint8_t levels[kNumParts];
+
+            evaluateStepDrums(step, &triggers, &accents, levels, barPerturbation);
+
+            // Store data in cache
+            for (uint8_t i = 0; i < kNumParts; ++i) {
+                cache.steps[step].trigger[i] = (triggers & (1 << i)) != 0;
+                cache.steps[step].accent[i] = (accents & (1 << i)) != 0;
+                cache.steps[step].level[i] = levels[i];
+            }
+        }
+    }
+
+    // Update metadata
+    cache.lastMapX = _settings.x;
+    cache.lastMapY = _settings.y;
+    cache.lastRandomness = _settings.randomness;
+    cache.lastPatternMode = _settings.patternMode;
+    cache.lastAccAlt = _settings.accAlt;
+    for (uint8_t i = 0; i < kNumParts; ++i) {
+        cache.lastDensity[i] = _settings.density[i];
+        cache.lastEuclideanLength[i] = _settings.euclidean_length[i];
+    }
+    cache.needsRegeneration = false;
+}
+
+// NEW: Evaluate a single step for drum mode
+void PatternGenerator::evaluateStepDrums(uint8_t step, uint8_t* outTriggers, uint8_t* outAccents,
+                                         uint8_t* outLevels, const uint8_t* perturbation) {
+    uint8_t instrument_mask = 1;
+    uint8_t x = _settings.x;
+    uint8_t y = _settings.y;
+    uint8_t triggers = 0;
+    uint8_t accents = 0;
+
+    for (uint8_t i = 0; i < kNumParts; ++i) {
+        uint8_t level = readDrumMap(step, i, x, y);
+
+        // Apply perturbation
+        if (level < 255 - perturbation[i]) {
+            level += perturbation[i];
+        } else {
+            level = 255;
+        }
+
+        outLevels[i] = level;
+
+        // Check against density threshold
+        uint8_t threshold = ~_settings.density[i];
+        if (level > threshold) {
+            triggers |= instrument_mask;
+            if (level > 192) {
+                accents |= instrument_mask;
+            }
+        }
+        instrument_mask <<= 1;
+    }
+
+    *outTriggers = triggers;
+    *outAccents = accents;
+}
+
+// NEW: Evaluate a single step for euclidean mode
+void PatternGenerator::evaluateStepEuclidean(uint8_t step, uint8_t euclideanStep[kNumParts],
+                                             uint8_t* outTriggers, uint8_t* outResets) {
+    uint8_t instrument_mask = 1;
+    uint8_t triggers = 0;
+    uint8_t resets = 0;
+
+    for (uint8_t i = 0; i < kNumParts; ++i) {
+        uint8_t length = (_settings.euclidean_length[i] >> 3) + 1;
+        uint8_t density = _settings.density[i] >> 3;
+        uint16_t address = (length - 1) * 32 + density;
+
+        // Wrap euclidean step
+        while (euclideanStep[i] >= length) {
+            euclideanStep[i] -= length;
+        }
+
+        uint32_t step_mask = 1L << static_cast<uint32_t>(euclideanStep[i]);
+        uint32_t pattern_bits = *(lut_res_euclidean + address);
+
+        if (pattern_bits & step_mask) {
+            triggers |= instrument_mask;
+        }
+        if (euclideanStep[i] == 0) {
+            resets |= instrument_mask;
+        }
+
+        instrument_mask <<= 1;
+    }
+
+    *outTriggers = triggers;
+    *outResets = resets;
+}
+

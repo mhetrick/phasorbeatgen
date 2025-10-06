@@ -876,4 +876,4 @@ void UGraphWidget::step() {
     Widget::step();
 }
 
-Model *modelUGraph = createModel<UGraph, UGraphWidget>("uGraph");
+Model *modelUGraph = createModel<UGraph, UGraphWidget>("PhasoruGraph");

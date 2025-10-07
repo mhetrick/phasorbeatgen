@@ -309,42 +309,11 @@ struct SeqModeChoice : ValleyChoiceMenu {
     }
 };
 
-PhasorBeatMapWidget::PhasorBeatMapWidget(PhasorBeatMap *module) {
-    setModule(module);
-    setPanel(createPanel(asset::plugin(pluginInstance, "res/PhasorBeatMapPanel.svg")));
+PhasorBeatMapWidget::PhasorBeatMapWidget(PhasorBeatMap *module) 
+{
+    setSkinPath("res/PhasorBeatMap.svg");
+    initializeWidget(module);
 
-    // Screws
-    addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, 0)));
-    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, 0)));
-    addChild(createWidget<ScrewBlack>(Vec(RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-    addChild(createWidget<ScrewBlack>(Vec(box.size.x - 2 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-
-    // Text labels
-    std::string fontPath = "res/din1451alt.ttf";
-
-    PlainText* mapXText = new PlainText;
-    mapXText->box.pos = Vec(27.1, 208.5);
-    mapXText->size = 14;
-    mapXText->fontPath = fontPath;
-    mapXText->color = nvgRGB(0xFF, 0xFF, 0xFF);
-    mapXText->text = "Map X";
-    addChild(mapXText);
-
-    PlainText* mapYText = new PlainText;
-    mapYText->box.pos = Vec(27.1, 268.5);
-    mapYText->size = 14;
-    mapYText->fontPath = fontPath;
-    mapYText->color = nvgRGB(0xFF, 0xFF, 0xFF);
-    mapYText->text = "Map Y";
-    addChild(mapYText);
-
-    PlainText* chaosText = new PlainText;
-    chaosText->box.pos = Vec(27.1, 329);
-    chaosText->size = 14;
-    chaosText->fontPath = fontPath;
-    chaosText->color = nvgRGB(0xFF, 0xFF, 0xFF);
-    chaosText->text = "Chaos";
-    addChild(chaosText);
 
     // Parameters (matching original panel layout)
     addParam(createParam<Rogan1PSWhite>(Vec(49, 166.15), module, PhasorBeatMap::MAPX_PARAM));

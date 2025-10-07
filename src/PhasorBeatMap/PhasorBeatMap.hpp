@@ -28,6 +28,7 @@
 #include "../timers/Oneshot.hpp"
 #include "../DSP/Phasors/HCVPhasorAnalyzers.h"
 #include "PhasorBeatMapPatternGenerator.hpp"
+#include "../HetrickUtilities.hpp"
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
 
@@ -130,7 +131,7 @@ struct PhasorBeatMap : Module {
    void triggerStepOutputs(int step);
 };
 
-struct PhasorBeatMapWidget : ModuleWidget {
+struct PhasorBeatMapWidget : HCVModuleWidget {
     PhasorBeatMapWidget(PhasorBeatMap *module);
     void appendContextMenu(Menu* menu) override;
     void step() override;

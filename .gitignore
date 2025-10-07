@@ -2,7 +2,7 @@ dist/
 build/
 .claude/
 CLAUDE.md
-
+*.afdesign~lock~
 .DS_Store
 
 # Prerequisites

@@ -25,7 +25,7 @@ void ValleyChoiceMenu::draw(const DrawArgs& args) {
         nvgStroke(args.vg);
     }
 
-    std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, "res/din1451alt.ttf"));
+    std::shared_ptr<Font> font = APP->window->loadFont(asset::plugin(pluginInstance, "res/Effra.ttf"));
     if (font) {
         textOffset = math::Vec(box.size.x / 2.0, box.size.y / 2.0);
         nvgFillColor(args.vg, color);

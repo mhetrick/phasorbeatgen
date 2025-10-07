@@ -324,7 +324,7 @@ PhasorBeatMapWidget::PhasorBeatMapWidget(PhasorBeatMap *module)
     addParam(createParam<Rogan1PSYellow>(Vec(193, 166.15), module, PhasorBeatMap::HH_DENS_PARAM));
 
     // Inputs
-    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 50.0), module, PhasorBeatMap::PHASOR_INPUT));
+    createInputPort(17.0, 50.0, PhasorBeatMap::PHASOR_INPUT);
 
     // Pattern mode dropdown below phasor input
     SeqModeChoice* modeChoice = new SeqModeChoice;
@@ -333,25 +333,25 @@ PhasorBeatMapWidget::PhasorBeatMapWidget(PhasorBeatMap *module)
     modeChoice->box.size.x = 55.f;
     addChild(modeChoice);
 
-    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 176.0), module, PhasorBeatMap::MAPX_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 236.0), module, PhasorBeatMap::MAPY_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(17.0, 296.0), module, PhasorBeatMap::CHAOS_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(131.0, 236.0), module, PhasorBeatMap::BD_FILL_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(167.0, 236.0), module, PhasorBeatMap::SN_FILL_CV));
-    addInput(createInput<PJ301MDarkSmall>(Vec(203.0, 236.0), module, PhasorBeatMap::HH_FILL_CV));
+    createInputPort(17.0, 176.0, PhasorBeatMap::MAPX_CV);
+    createInputPort(17.0, 236.0, PhasorBeatMap::MAPY_CV);
+    createInputPort(17.0, 296.0, PhasorBeatMap::CHAOS_CV);
+    createInputPort(131.0, 236.0, PhasorBeatMap::BD_FILL_CV);
+    createInputPort(167.0, 236.0, PhasorBeatMap::SN_FILL_CV);
+    createInputPort(203.0, 236.0, PhasorBeatMap::HH_FILL_CV);
 
     // Outputs
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(131.0, 276.0), module, PhasorBeatMap::BD_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(167.0, 276.0), module, PhasorBeatMap::SN_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(203.0, 276.0), module, PhasorBeatMap::HH_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(131.0, 311.0), module, PhasorBeatMap::BD_ACC_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(167.0, 311.0), module, PhasorBeatMap::SN_ACC_OUTPUT));
-    addOutput(createOutput<PJ301MDarkSmallOut>(Vec(203.0, 311.0), module, PhasorBeatMap::HH_ACC_OUTPUT));
+    createOutputPort(131.0, 276.0, PhasorBeatMap::BD_OUTPUT);
+    createOutputPort(167.0, 276.0, PhasorBeatMap::SN_OUTPUT);
+    createOutputPort(203.0, 276.0, PhasorBeatMap::HH_OUTPUT);
+    createOutputPort(131.0, 311.0, PhasorBeatMap::BD_ACC_OUTPUT);
+    createOutputPort(167.0, 311.0, PhasorBeatMap::SN_ACC_OUTPUT);
+    createOutputPort(203.0, 311.0, PhasorBeatMap::HH_ACC_OUTPUT);
 
     // Lights
-    addChild(createLight<SmallLight<RedLight>>(Vec(138.6, 218), module, PhasorBeatMap::BD_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(174.6, 218), module, PhasorBeatMap::SN_LIGHT));
-    addChild(createLight<SmallLight<RedLight>>(Vec(210.6, 218), module, PhasorBeatMap::HH_LIGHT));
+    createHCVRedLight(138.6, 218, PhasorBeatMap::BD_LIGHT);
+    createHCVRedLight(174.6, 218, PhasorBeatMap::SN_LIGHT);
+    createHCVRedLight(210.6, 218, PhasorBeatMap::HH_LIGHT);
 }
 
 void PhasorBeatMapWidget::appendContextMenu(Menu* menu) {

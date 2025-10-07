@@ -2,6 +2,7 @@ dist/
 build/
 .claude/
 CLAUDE.md
+DevDocs/
 *.afdesign~lock~
 .DS_Store
 

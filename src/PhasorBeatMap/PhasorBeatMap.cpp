@@ -329,7 +329,7 @@ PhasorBeatMapWidget::PhasorBeatMapWidget(PhasorBeatMap *module)
     // Pattern mode dropdown below phasor input
     SeqModeChoice* modeChoice = new SeqModeChoice;
     modeChoice->module = module;
-    modeChoice->box.pos = Vec(50.0, 50.0);
+    modeChoice->box.pos = Vec(25.0, 120.0);
     modeChoice->box.size.x = 55.f;
     addChild(modeChoice);
 

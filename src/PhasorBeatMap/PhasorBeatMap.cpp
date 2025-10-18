@@ -17,6 +17,9 @@ PhasorBeatMap::PhasorBeatMap() {
     configParam(PhasorBeatMap::BD_DENS_PARAM, 0.0, 1.0, 0.5, "Channel 1 Density");
     configParam(PhasorBeatMap::SN_DENS_PARAM, 0.0, 1.0, 0.5, "Channel 2 Density");
     configParam(PhasorBeatMap::HH_DENS_PARAM, 0.0, 1.0, 0.5, "Channel 3 Density");
+    configSwitch(PhasorBeatMap::MODE_PARAM, 0.0, (float)(NUM_SEQUENCER_MODES - 1), 0.0, "Pattern Mode",
+                 {"Original", "Henri", "Euclid"});
+    paramQuantities[MODE_PARAM]->snapEnabled = true;
 
     // Inputs
     configInput(PhasorBeatMap::PHASOR_INPUT, "Phasor");
@@ -26,6 +29,7 @@ PhasorBeatMap::PhasorBeatMap() {
     configInput(PhasorBeatMap::BD_FILL_CV, "Channel 1 Density CV");
     configInput(PhasorBeatMap::SN_FILL_CV, "Channel 2 Density CV");
     configInput(PhasorBeatMap::HH_FILL_CV, "Channel 3 Density CV");
+    configInput(PhasorBeatMap::MODE_CV, "Pattern Mode CV");
 
     // Outputs
     configOutput(PhasorBeatMap::BD_OUTPUT, "Channel 1");
@@ -60,24 +64,26 @@ json_t* PhasorBeatMap::dataToJson() {
 }
 
 void PhasorBeatMap::dataFromJson(json_t* rootJ) {
+    // Load legacy sequencerMode field for backward compatibility with old presets
     json_t *sequencerModeJ = json_object_get(rootJ, "sequencerMode");
     if (sequencerModeJ) {
-        sequencerMode = (PhasorBeatMap::SequencerMode) json_integer_value(sequencerModeJ);
-        inEuclideanMode = 0;
-        switch (sequencerMode) {
-            case HENRI:
-                patternGenerator.setPatternMode(PATTERN_HENRI);
+        int legacyMode = json_integer_value(sequencerModeJ);
+
+        // Map legacy enum to MODE_PARAM value
+        // Legacy enum: HENRI=0, ORIGINAL=1, EUCLIDEAN=2
+        // Current enum: ORIGINAL=0, HENRI=1, EUCLIDEAN=2
+        switch (legacyMode) {
+            case 0:  // Legacy HENRI
+                params[MODE_PARAM].setValue(1.0f);  // Current HENRI
                 break;
-            case ORIGINAL:
-                patternGenerator.setPatternMode(PATTERN_ORIGINAL);
+            case 1:  // Legacy ORIGINAL
+                params[MODE_PARAM].setValue(0.0f);  // Current ORIGINAL
                 break;
-            case EUCLIDEAN:
-                patternGenerator.setPatternMode(PATTERN_EUCLIDEAN);
-                inEuclideanMode = 1;
+            case 2:  // Legacy EUCLIDEAN
+                params[MODE_PARAM].setValue(2.0f);  // Current EUCLIDEAN
                 break;
         }
-        barCache.needsRegeneration = true;
-	}
+    }
 
     json_t* triggerOutputModeJ = json_object_get(rootJ, "triggerOutputMode");
 	if (triggerOutputModeJ) {
@@ -91,6 +97,36 @@ void PhasorBeatMap::dataFromJson(json_t* rootJ) {
 }
 
 void PhasorBeatMap::process(const ProcessArgs &args) {
+    // Read mode parameter with CV
+    float modeValue = params[MODE_PARAM].getValue();
+    if (inputs[MODE_CV].isConnected()) {
+        modeValue += inputs[MODE_CV].getVoltage() * 0.4f;  // 2.5V per mode step
+    }
+    int modeIndex = clamp((int)round(modeValue), 0, (int)NUM_SEQUENCER_MODES - 1);
+
+    // Update sequencer mode if changed
+    if (modeIndex != (int)sequencerMode) {
+        sequencerMode = (SequencerMode)modeIndex;
+
+        switch (sequencerMode) {
+            case ORIGINAL:
+                patternGenerator.setPatternMode(PATTERN_ORIGINAL);
+                inEuclideanMode = 0;
+                break;
+            case HENRI:
+                patternGenerator.setPatternMode(PATTERN_HENRI);
+                inEuclideanMode = 0;
+                break;
+            case EUCLIDEAN:
+                patternGenerator.setPatternMode(PATTERN_EUCLIDEAN);
+                inEuclideanMode = 1;
+                break;
+            default:
+                break;
+        }
+        barCache.needsRegeneration = true;
+    }
+
     // Read pattern parameters
     mapX = clamp(params[MAPX_PARAM].getValue() + inputs[MAPX_CV].getVoltage() / 10.f, 0.f, 1.f);
     mapY = clamp(params[MAPY_PARAM].getValue() + inputs[MAPY_CV].getVoltage() / 10.f, 0.f, 1.f);
@@ -253,62 +289,6 @@ bool PhasorBeatMap::checkBarRegenerationNeeded() {
 ////////////////////////////////////////////// Widget //////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Sequencer mode menu item
-struct SeqModeItem : MenuItem {
-    PhasorBeatMap* module;
-    int sequencerModeChoice;
-
-    void onAction(const event::Action& e) override {
-        module->sequencerModeChoice = sequencerModeChoice;
-
-        // Map choice index to SequencerMode enum
-        switch (sequencerModeChoice) {
-            case 0: // Original
-                module->sequencerMode = PhasorBeatMap::ORIGINAL;
-                module->patternGenerator.setPatternMode(PATTERN_ORIGINAL);
-                module->inEuclideanMode = 0;
-                break;
-            case 1: // Henri
-                module->sequencerMode = PhasorBeatMap::HENRI;
-                module->patternGenerator.setPatternMode(PATTERN_HENRI);
-                module->inEuclideanMode = 0;
-                break;
-            case 2: // Euclidean
-                module->sequencerMode = PhasorBeatMap::EUCLIDEAN;
-                module->patternGenerator.setPatternMode(PATTERN_EUCLIDEAN);
-                module->inEuclideanMode = 1;
-                break;
-        }
-        module->barCache.needsRegeneration = true;
-    }
-};
-
-// Sequencer mode choice menu
-struct SeqModeChoice : ValleyChoiceMenu {
-    PhasorBeatMap* module;
-    std::vector<std::string> seqModeLabels = {"Original", "Henri", "Euclid"};
-
-    void onAction(const event::Action& e) override {
-        if (!module) {
-            return;
-        }
-
-        ui::Menu* menu = createMenu();
-        for (int i = 0; i < static_cast<int>(seqModeLabels.size()); ++i) {
-            SeqModeItem* item = new SeqModeItem;
-            item->module = module;
-            item->sequencerModeChoice = i;
-            item->text = seqModeLabels[i];
-            item->rightText = CHECKMARK(item->sequencerModeChoice == module->sequencerModeChoice);
-            menu->addChild(item);
-        }
-    }
-
-    void step() override {
-        text = module ? seqModeLabels[module->sequencerModeChoice] : seqModeLabels[0];
-    }
-};
-
 PhasorBeatMapWidget::PhasorBeatMapWidget(PhasorBeatMap *module) 
 {
     setSkinPath("res/PhasorBeatMap.svg");
@@ -316,6 +296,7 @@ PhasorBeatMapWidget::PhasorBeatMapWidget(PhasorBeatMap *module)
 
 
     // Parameters (matching original panel layout)
+    addParam(createParam<Rogan1PSWhite>(Vec(49, 106.15), module, PhasorBeatMap::MODE_PARAM));
     addParam(createParam<Rogan1PSWhite>(Vec(49, 166.15), module, PhasorBeatMap::MAPX_PARAM));
     addParam(createParam<Rogan1PSWhite>(Vec(49, 226.15), module, PhasorBeatMap::MAPY_PARAM));
     addParam(createParam<Rogan1PSWhite>(Vec(49, 286.15), module, PhasorBeatMap::CHAOS_PARAM));
@@ -325,14 +306,7 @@ PhasorBeatMapWidget::PhasorBeatMapWidget(PhasorBeatMap *module)
 
     // Inputs
     createInputPort(17.0, 50.0, PhasorBeatMap::PHASOR_INPUT);
-
-    // Pattern mode dropdown below phasor input
-    SeqModeChoice* modeChoice = new SeqModeChoice;
-    modeChoice->module = module;
-    modeChoice->box.pos = Vec(25.0, 120.0);
-    modeChoice->box.size.x = 55.f;
-    addChild(modeChoice);
-
+    createInputPort(17.0, 116.0, PhasorBeatMap::MODE_CV);
     createInputPort(17.0, 176.0, PhasorBeatMap::MAPX_CV);
     createInputPort(17.0, 236.0, PhasorBeatMap::MAPY_CV);
     createInputPort(17.0, 296.0, PhasorBeatMap::CHAOS_CV);

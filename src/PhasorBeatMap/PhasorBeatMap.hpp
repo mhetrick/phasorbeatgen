@@ -24,7 +24,6 @@
 #pragma once
 #include "../PhasorBeatMapPlugin.hpp"
 #include "../gui/ValleyComponents.hpp"
-#include "../gui/ValleyChoiceMenu.hpp"
 #include "../timers/Oneshot.hpp"
 #include "../DSP/Phasors/HCVPhasorAnalyzers.h"
 #include "PhasorBeatMapPatternGenerator.hpp"
@@ -40,6 +39,7 @@ struct PhasorBeatMap : Module {
        BD_DENS_PARAM,
        SN_DENS_PARAM,
        HH_DENS_PARAM,
+       MODE_PARAM,
        NUM_PARAMS
    };
 
@@ -51,6 +51,7 @@ struct PhasorBeatMap : Module {
        BD_FILL_CV,
        SN_FILL_CV,
        HH_FILL_CV,
+       MODE_CV,
        // FREEZE_INPUT,  // Reserved for future use
        NUM_INPUTS
    };
@@ -100,12 +101,12 @@ struct PhasorBeatMap : Module {
                                 BD_ACC_OUTPUT, SN_ACC_OUTPUT, HH_ACC_OUTPUT};
 
    enum SequencerMode {
-       HENRI,
        ORIGINAL,
-       EUCLIDEAN
+       HENRI,
+       EUCLIDEAN,
+       NUM_SEQUENCER_MODES
    };
    SequencerMode sequencerMode = ORIGINAL;
-   int sequencerModeChoice = 0;  // 0=Original, 1=Henri, 2=Euclidean (matching uGraph order)
    int inEuclideanMode = 0;
 
    enum TriggerOutputMode {
@@ -144,5 +145,4 @@ struct PhasorBeatMapWidget : HCVModuleWidget {
     NVGcolor darkPanelTextColour = nvgRGB(0xFF, 0xFF, 0xFF);
     NVGcolor lightPanelTextColour = nvgRGB(0x00, 0x00, 0x00);
     NVGcolor panelTextColours[2] = {darkPanelTextColour, lightPanelTextColour};
-    ValleyChoiceMenu* seqModeChoice;
 };

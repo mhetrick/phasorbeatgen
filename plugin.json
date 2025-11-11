@@ -4,6 +4,7 @@
   "version": "2.0.0",
   "license": "GPL-3.0-or-later",
   "author": "HetrickCV",
+  "brand": "HetrickCV",
   "authorUrl": "https://github.com/mhetrick/phasorbeatgen",
   "pluginUrl": "https://github.com/mhetrick/phasorbeatgen",
   "manualUrl": "https://github.com/mhetrick/phasorbeatgen",

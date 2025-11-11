@@ -1,0 +1,12 @@
+{
+    "MetaModulePluginMaintainer": "HetrickCV",
+    "MetaModulePluginMaintainerEmail": "michael@unfilteredaudio.com",
+    "MetaModulePluginMaintainerUrl": "https://mhetrick.com/",
+    "MetaModuleDescription": "Phasor Beat Map for MetaModule",
+    "MetaModuleIncludedModules": [
+    {
+      "slug": "PhasorBeatMap",
+      "name": "Phasor Beat Map"
+    }
+    ]
+}

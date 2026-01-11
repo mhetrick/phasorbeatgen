@@ -18,6 +18,16 @@
         "Sequencer",
         "Drum sequencer"
       ]
+    },
+    {
+      "slug": "PhasorWavetable",
+      "name": "Phasor Wavetable",
+      "description": "Phasor-driven wavetable oscillator. Load custom wavetables from WAV files. LFO mode for non-antialiased output, VCO mode with mipmap antialiasing for audio-rate use.",
+      "tags": [
+        "Oscillator",
+        "LFO",
+        "Wavetable"
+      ]
     }
   ]
 }

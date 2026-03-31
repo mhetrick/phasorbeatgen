@@ -417,7 +417,6 @@ struct PhasorWavetable : HCVModule {
         POS_PARAM,
         POS_CV_PARAM,
         OFFSET_PARAM,
-        INVERT_PARAM,
         MODE_PARAM,  // 0 = LFO (no antialiasing), 1 = VCO (mipmap antialiasing)
         NUM_PARAMS
     };
@@ -431,9 +430,6 @@ struct PhasorWavetable : HCVModule {
         NUM_OUTPUTS
     };
     enum LightId {
-        OFFSET_LIGHT,
-        INVERT_LIGHT,
-        MODE_LIGHT,
         NUM_LIGHTS
     };
 
@@ -442,9 +438,6 @@ struct PhasorWavetable : HCVModule {
     float lastPos = 0.f;
     float lastPhasor[HCV_MAX_POLYPHONY] = {};
 
-    dsp::ClockDivider lightDivider;
-    dsp::BooleanTrigger offsetTrigger;
-    dsp::BooleanTrigger invertTrigger;
 
     PhasorWavetable() {
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
@@ -454,7 +447,6 @@ struct PhasorWavetable : HCVModule {
         getParamQuantity(POS_CV_PARAM)->randomizeEnabled = false;
 
         configSwitch(OFFSET_PARAM, 0.f, 1.f, 1.f, "Offset", {"Bipolar", "Unipolar"});
-        configSwitch(INVERT_PARAM, 0.f, 1.f, 0.f, "Invert");
         configSwitch(MODE_PARAM, 0.f, 1.f, 0.f, "Mode", {"LFO (no antialiasing)", "VCO (antialiased)"});
 
         configInput(PHASOR_INPUT, "Phasor");
@@ -465,7 +457,6 @@ struct PhasorWavetable : HCVModule {
         // Default to quality 8 for VCO mode
         wavetable.setQuality(8);
 
-        lightDivider.setDivision(16);
         onReset();
     }
 
@@ -545,7 +536,6 @@ struct PhasorWavetable : HCVModule {
         float posParam = params[POS_PARAM].getValue();
         float posCvParam = params[POS_CV_PARAM].getValue();
         bool offset = (params[OFFSET_PARAM].getValue() > 0.f);
-        bool invert = (params[INVERT_PARAM].getValue() > 0.f);
         bool vcoMode = (params[MODE_PARAM].getValue() > 0.f);
 
         int channels = std::max(1, inputs[PHASOR_INPUT].getChannels());
@@ -592,8 +582,6 @@ struct PhasorWavetable : HCVModule {
                     lastPhasor[c] = phase;
                 }
 
-                if (invert)
-                    out *= -1.f;
                 if (offset)
                     out += 1.f;
 
@@ -608,12 +596,6 @@ struct PhasorWavetable : HCVModule {
 
         outputs[WAVE_OUTPUT].setChannels(channels);
 
-        // Light
-        if (lightDivider.process()) {
-            lights[OFFSET_LIGHT].setBrightness(offset);
-            lights[INVERT_LIGHT].setBrightness(invert);
-            lights[MODE_LIGHT].setBrightness(vcoMode);
-        }
     }
 
     json_t* dataToJson() override {

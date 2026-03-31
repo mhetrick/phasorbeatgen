@@ -14,14 +14,13 @@ struct PhasorWavetableWidget : HCVModuleWidget {
         // Position controls (knob + CV depth trimpot + CV input) - left column
         createParamComboVertical(11, 162, PhasorWavetable::POS_PARAM, PhasorWavetable::POS_CV_PARAM, PhasorWavetable::POS_INPUT);
 
-        // Mode button (LFO/VCO toggle) - right column
-        addParam(createLightParamCentered<VCVLightLatch<MediumSimpleLight<WhiteLight>>>(mm2px(Vec(27.0, 56.0)), module, PhasorWavetable::MODE_PARAM, PhasorWavetable::MODE_LIGHT));
+        const float switchX = 63.0f;
+        
+        // Mode switch (VCO/LFO toggle) - right column, centered between VCO and LFO labels
+        createHCVSwitchVert(switchX, 181, PhasorWavetable::MODE_PARAM);
 
-        // Invert button with light - right column
-        addParam(createLightParamCentered<VCVLightLatch<MediumSimpleLight<WhiteLight>>>(mm2px(Vec(27.0, 75.0)), module, PhasorWavetable::INVERT_PARAM, PhasorWavetable::INVERT_LIGHT));
-
-        // Offset button with light - right column
-        addParam(createLightParamCentered<VCVLightLatch<MediumSimpleLight<WhiteLight>>>(mm2px(Vec(27.0, 90.0)), module, PhasorWavetable::OFFSET_PARAM, PhasorWavetable::OFFSET_LIGHT));
+        // Offset switch (Unipolar/Bipolar) - right column, centered between labels
+        createHCVSwitchVert(switchX, 253, PhasorWavetable::OFFSET_PARAM);
 
         const float mainJackY = 108.0f;
         

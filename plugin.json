@@ -1,6 +1,6 @@
 {
-  "slug": "PhasorBeatMap",
-  "name": "Phasor Beat Map",
+  "slug": "HetrickCVGPL",
+  "name": "HetrickCV GPL",
   "version": "2.0.0",
   "license": "GPL-3.0-or-later",
   "author": "HetrickCV",
@@ -17,6 +17,16 @@
       "tags": [
         "Sequencer",
         "Drum sequencer"
+      ]
+    },
+    {
+      "slug": "PhasorWavetable",
+      "name": "Phasor Wavetable",
+      "description": "Phasor-driven wavetable oscillator. Load custom wavetables from WAV files. LFO mode for non-antialiased output, VCO mode with mipmap antialiasing for audio-rate use.",
+      "tags": [
+        "Oscillator",
+        "LFO",
+        "Wavetable"
       ]
     }
   ]

@@ -431,7 +431,6 @@ struct PhasorWavetable : HCVModule {
         NUM_OUTPUTS
     };
     enum LightId {
-        ENUMS(PHASE_LIGHT, 3),
         OFFSET_LIGHT,
         INVERT_LIGHT,
         MODE_LIGHT,
@@ -462,8 +461,6 @@ struct PhasorWavetable : HCVModule {
         configInput(POS_INPUT, "Wavetable position");
 
         configOutput(WAVE_OUTPUT, "Wavetable");
-
-        configLight(PHASE_LIGHT, "Phase");
 
         // Default to quality 8 for VCO mode
         wavetable.setQuality(8);
@@ -613,18 +610,6 @@ struct PhasorWavetable : HCVModule {
 
         // Light
         if (lightDivider.process()) {
-            float phase = lastPhasor[0];
-            if (channels == 1) {
-                float b = 1.f - phase;
-                lights[PHASE_LIGHT + 0].setSmoothBrightness(b, args.sampleTime * lightDivider.getDivision());
-                lights[PHASE_LIGHT + 1].setSmoothBrightness(b, args.sampleTime * lightDivider.getDivision());
-                lights[PHASE_LIGHT + 2].setBrightness(0.f);
-            }
-            else {
-                lights[PHASE_LIGHT + 0].setBrightness(0.f);
-                lights[PHASE_LIGHT + 1].setBrightness(0.f);
-                lights[PHASE_LIGHT + 2].setBrightness(1.f);
-            }
             lights[OFFSET_LIGHT].setBrightness(offset);
             lights[INVERT_LIGHT].setBrightness(invert);
             lights[MODE_LIGHT].setBrightness(vcoMode);

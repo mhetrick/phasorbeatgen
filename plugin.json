@@ -15,8 +15,7 @@
       "name": "Phasor Beat Map",
       "description": "Phasor-driven topographic drum sequencer based on Mutable Instruments Grids. Uses phasor input (0-10V) for playback, enabling reverse, scrub, and non-linear pattern navigation.",
       "tags": [
-        "Sequencer",
-        "Drum sequencer"
+        "Sequencer"
       ]
     },
     {
@@ -26,7 +25,7 @@
       "tags": [
         "Oscillator",
         "LFO",
-        "Wavetable"
+        "Waveshaper"
       ]
     }
   ]
